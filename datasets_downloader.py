@@ -65,14 +65,12 @@ def download_huron(output_dir="datasets/huron"):
 
 def download_tartan(output_dir="datasets/tartan"):
     """Download the Tartan dataset using download.py helper."""
-    download_tartan_dataset(output_dir)
-    return True
+    return download_tartan_dataset(output_dir)
 
 
 def download_scand(output_dir="datasets/scand"):
     """Download the Scand dataset using download.py helper."""
-    download_scand_dataset(output_dir)
-    return True
+    return download_scand_dataset(output_dir)
 
 
 def process_dataset(dataset_name, dataset_dir):
@@ -112,22 +110,24 @@ def process_dataset(dataset_name, dataset_dir):
         print(f"Error accessing dataset directory: {e}")
 
 
-def download_dataset(dataset_name, process=False):
+def download_dataset(dataset_name, process=False, output_dir="datasets"):
     """
     Download a specific dataset and optionally process it.
     
     Args:
         dataset_name (str): Name of the dataset to download
         process (bool): Whether to process the dataset after downloading
+        output_dir (str): Base directory for datasets
     """
     dataset_name = dataset_name.lower()
     
+    # Map dataset names to their download functions
     downloaders = {
-        "recon": download_recon,
-        "tartan": download_tartan,
-        "scand": download_scand,
-        "go_stanford": download_go_stanford,
-        "huron": download_huron,
+        "recon": lambda: download_recon(os.path.join(output_dir, "recon")),
+        "tartan": lambda: download_tartan(os.path.join(output_dir, "tartan")),
+        "scand": lambda: download_scand(os.path.join(output_dir, "scand")),
+        "go_stanford": lambda: download_go_stanford(os.path.join(output_dir, "go_stanford")),
+        "huron": lambda: download_huron(os.path.join(output_dir, "huron")),
     }
     
     if dataset_name not in downloaders:
@@ -142,18 +142,19 @@ def download_dataset(dataset_name, process=False):
     success = downloaders[dataset_name]()
     
     if success and process:
-        dataset_dir = f"datasets/{dataset_name}"
+        dataset_dir = os.path.join(output_dir, dataset_name)
         process_dataset(dataset_name, dataset_dir)
     
     return success
 
 
-def download_all_datasets(process=False):
+def download_all_datasets(process=False, output_dir="datasets"):
     """
     Download all available datasets.
     
     Args:
         process (bool): Whether to process datasets after downloading
+        output_dir (str): Base directory for datasets
     """
     datasets = ["recon", "tartan", "scand", "go_stanford", "huron"]
     
@@ -163,7 +164,7 @@ def download_all_datasets(process=False):
     
     results = {}
     for dataset in datasets:
-        results[dataset] = download_dataset(dataset, process)
+        results[dataset] = download_dataset(dataset, process, output_dir)
     
     print(f"\n{'='*60}")
     print("Download Summary")
@@ -211,15 +212,11 @@ Examples:
     # Create base output directory
     os.makedirs(args.output_dir, exist_ok=True)
     
-    # Change to base output directory if specified
-    if args.output_dir != "datasets":
-        print(f"Using output directory: {args.output_dir}")
-    
     # Download dataset(s)
     if args.dataset == "all":
-        download_all_datasets(process=args.process)
+        download_all_datasets(process=args.process, output_dir=args.output_dir)
     else:
-        success = download_dataset(args.dataset, process=args.process)
+        success = download_dataset(args.dataset, process=args.process, output_dir=args.output_dir)
         if not success:
             sys.exit(1)
     

@@ -19,7 +19,7 @@ def download_file(url, destination):
     """
     os.makedirs(os.path.dirname(destination), exist_ok=True)
     
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=30)
     response.raise_for_status()
     
     total_size = int(response.headers.get('content-length', 0))
@@ -40,6 +40,9 @@ def download_tartan_dataset(output_dir="datasets/tartan"):
     
     Args:
         output_dir (str): Directory where the dataset should be saved
+    
+    Returns:
+        bool: True if download was successful or has configured URLs, False otherwise
     """
     print("Downloading Tartan dataset...")
     # Placeholder URLs - replace with actual Tartan dataset URLs
@@ -50,13 +53,17 @@ def download_tartan_dataset(output_dir="datasets/tartan"):
     
     if not tartan_urls:
         print("Warning: No URLs configured for Tartan dataset. Please add URLs to download.py")
-        return
+        return False
     
-    for url in tartan_urls:
-        filename = os.path.join(output_dir, os.path.basename(url))
-        download_file(url, filename)
-    
-    print("Tartan dataset download complete!")
+    try:
+        for url in tartan_urls:
+            filename = os.path.join(output_dir, os.path.basename(url))
+            download_file(url, filename)
+        print("Tartan dataset download complete!")
+        return True
+    except Exception as e:
+        print(f"Error downloading Tartan dataset: {e}")
+        return False
 
 
 def download_scand_dataset(output_dir="datasets/scand"):
@@ -65,6 +72,9 @@ def download_scand_dataset(output_dir="datasets/scand"):
     
     Args:
         output_dir (str): Directory where the dataset should be saved
+    
+    Returns:
+        bool: True if download was successful or has configured URLs, False otherwise
     """
     print("Downloading Scand dataset...")
     # Placeholder URLs - replace with actual Scand dataset URLs
@@ -75,13 +85,17 @@ def download_scand_dataset(output_dir="datasets/scand"):
     
     if not scand_urls:
         print("Warning: No URLs configured for Scand dataset. Please add URLs to download.py")
-        return
+        return False
     
-    for url in scand_urls:
-        filename = os.path.join(output_dir, os.path.basename(url))
-        download_file(url, filename)
-    
-    print("Scand dataset download complete!")
+    try:
+        for url in scand_urls:
+            filename = os.path.join(output_dir, os.path.basename(url))
+            download_file(url, filename)
+        print("Scand dataset download complete!")
+        return True
+    except Exception as e:
+        print(f"Error downloading Scand dataset: {e}")
+        return False
 
 
 if __name__ == "__main__":
