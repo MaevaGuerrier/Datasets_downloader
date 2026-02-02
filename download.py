@@ -17,7 +17,7 @@ def download_file(url, destination):
         url (str): URL to download from
         destination (str): Path where the file should be saved
     """
-    os.makedirs(os.path.dirname(destination), exist_ok=True)
+    os.makedirs(os.path.dirname(destination) or '.', exist_ok=True)
     
     response = requests.get(url, stream=True, timeout=30)
     response.raise_for_status()
@@ -42,7 +42,7 @@ def download_tartan_dataset(output_dir="datasets/tartan"):
         output_dir (str): Directory where the dataset should be saved
     
     Returns:
-        bool: True if download was successful or has configured URLs, False otherwise
+        bool: True if download was successful, False if URLs are not configured or download fails
     """
     print("Downloading Tartan dataset...")
     # Placeholder URLs - replace with actual Tartan dataset URLs
@@ -74,7 +74,7 @@ def download_scand_dataset(output_dir="datasets/scand"):
         output_dir (str): Directory where the dataset should be saved
     
     Returns:
-        bool: True if download was successful or has configured URLs, False otherwise
+        bool: True if download was successful, False if URLs are not configured or download fails
     """
     print("Downloading Scand dataset...")
     # Placeholder URLs - replace with actual Scand dataset URLs

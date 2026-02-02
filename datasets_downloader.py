@@ -170,7 +170,7 @@ def download_all_datasets(process=False, output_dir="datasets"):
     print("Download Summary")
     print(f"{'='*60}")
     for dataset, success in results.items():
-        status = "✓ Success" if success else "✗ Failed"
+        status = "[OK]" if success else "[FAIL]"
         print(f"{dataset:15} : {status}")
     print(f"{'='*60}\n")
 
