@@ -1,0 +1,4 @@
+[submodule "third_party/tartan_drive"]
+	path = third_party/tartan_drive
+	url = git@github.com:castacks/tartan_drive.git
+	branch = main

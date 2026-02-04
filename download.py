@@ -7,7 +7,12 @@ Uses HTTP requests to download files from URLs.
 import os
 import requests
 from tqdm import tqdm
-
+import requests
+from bs4 import BeautifulSoup
+import os
+from urllib.parse import urljoin
+from pathlib import Path
+import time
 
 def download_file(url, destination):
     """
@@ -34,9 +39,9 @@ def download_file(url, destination):
     print(f"Downloaded: {destination}")
 
 
-def download_tartan_dataset(output_dir="datasets/tartan"):
+def download_hurron_dataset(output_dir="datasets/huron"):
     """
-    Download the Tartan dataset.
+    Download the Huron dataset.
     
     Args:
         output_dir (str): Directory where the dataset should be saved
@@ -44,58 +49,66 @@ def download_tartan_dataset(output_dir="datasets/tartan"):
     Returns:
         bool: True if download was successful, False if URLs are not configured or download fails
     """
-    print("Downloading Tartan dataset...")
-    # Placeholder URLs - replace with actual Tartan dataset URLs
-    tartan_urls = [
-        # Add actual Tartan dataset URLs here
-        # Example: "https://example.com/tartan/data.zip"
-    ]
-    
-    if not tartan_urls:
-        print("Warning: No URLs configured for Tartan dataset. Please add URLs to download.py")
+    def _get_folders(url):
+        """Extract all folder names from the index page"""
+        print(f"Fetching main directory listing from {url}...")
+        response = requests.get(url, timeout=30)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        folders = []
+        for link in soup.find_all('a'):
+            href = link.get('href')
+            if href and href.endswith('/') and href not in ['../', '../', '/datasets/']:
+                folder_name = href.rstrip('/')
+                folders.append(folder_name)
+        
+        return folders
+
+    def _get_bag_files(folder_url):
+        """Get all .bag files from a folder"""
+        response = requests.get(folder_url, timeout=30)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        bag_files = []
+        for link in soup.find_all('a'):
+            href = link.get('href')
+            if href and href.endswith('.bag'):
+                bag_files.append(href)
+        
+        return bag_files
+
+    print("Downloading Huron dataset...")
+    # If in future they change or add mor indexes add them here
+    huron_index_url = "https://rail.eecs.berkeley.edu/datasets/huron/"
+
+    if not huron_index_url:
+        print("Warning: No URLs configured for Huron dataset. Please add URLs to download.py")
         return False
     
     try:
-        for url in tartan_urls:
-            filename = os.path.join(output_dir, os.path.basename(url))
-            download_file(url, filename)
-        print("Tartan dataset download complete!")
+
+        folders = _get_folders(huron_index_url)
+
+        for folder in folders:
+            folder_url = urljoin(huron_index_url, folder + '/')
+            bag_files = _get_bag_files(folder_url)
+
+            if len(bag_files) == 0:
+                print(f" No .bag files found, skipping {folder_url}\n")
+                continue
+
+            for bag_file in bag_files:
+                url = urljoin(folder_url, bag_file)
+                filename = os.path.join(output_dir, folder, bag_file)
+                download_file(url, filename)
+
+        print("Huron dataset download complete!")
         return True
     except Exception as e:
-        print(f"Error downloading Tartan dataset: {e}")
+        print(f"Error downloading Huron dataset: {e}")
         return False
 
 
-def download_scand_dataset(output_dir="datasets/scand"):
-    """
-    Download the Scand dataset.
-    
-    Args:
-        output_dir (str): Directory where the dataset should be saved
-    
-    Returns:
-        bool: True if download was successful, False if URLs are not configured or download fails
-    """
-    print("Downloading Scand dataset...")
-    # Placeholder URLs - replace with actual Scand dataset URLs
-    scand_urls = [
-        # Add actual Scand dataset URLs here
-        # Example: "https://example.com/scand/data.zip"
-    ]
-    
-    if not scand_urls:
-        print("Warning: No URLs configured for Scand dataset. Please add URLs to download.py")
-        return False
-    
-    try:
-        for url in scand_urls:
-            filename = os.path.join(output_dir, os.path.basename(url))
-            download_file(url, filename)
-        print("Scand dataset download complete!")
-        return True
-    except Exception as e:
-        print(f"Error downloading Scand dataset: {e}")
-        return False
 
 
 if __name__ == "__main__":
