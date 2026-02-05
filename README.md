@@ -7,7 +7,17 @@ A command-line tool for downloading and processing various vision datasets.
 - **huron** - Downloaded using gdown from Google Drive
 - **all** - Download all datasets at once
 
-## Installation
+## Installation compute canada
+
+```bash
+module load StdEnv/2023 python/3.10 gcc/12.3
+virtualenv --no-download datadownloader_venv
+source datadownloader_venv/bin/activate
+pip install --no-index -r requirements.txt
+```
+
+
+## Installation local computer
 
 1. Create pyenv
 
