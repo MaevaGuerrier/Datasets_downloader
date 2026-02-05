@@ -82,7 +82,9 @@ for file in files_list:
         download_url = f"{base_url}api/access/datafile/{file_id}"
         
         # Determine the directory
-        dir = "delivery_mdp/" if "DELIVERY" in filename else "random_mdps/"
+        dir = "datasets/scand"
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         
         # Download the file
         if download_file(download_url, dir, filename):
